@@ -39,8 +39,9 @@ $(rootdict): $(headers)
 
 lib := libmakePhotonTemplates.so
 
-sources := makePhotonTemplates.cc     \
-		   $(cwelke_shared)/ZMET.cc   \
+sources := makePhotonTemplates.cc                      \
+		   $(cwelke_shared)/ZMET.cc                    \
+		   $(cwelke_shared)/METTemplateSelections.cc   \
 		   $(cwelke_shared)/histTools.cc 
 
 objects := $(subst .cc,.o,$(sources)) makePhotonTemplates_dict.o

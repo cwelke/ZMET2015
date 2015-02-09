@@ -5,6 +5,7 @@
 // #include "Math/VectorUtil.h"
 
 #include "TChain.h"
+#include "TH1F.h"
 
 class TChain;
 
@@ -20,6 +21,8 @@ public:
   void bookHistos();
   
 private:
+
+  std::map<std::string, TH1F*> mettemplate_hists;
   
 };
 #endif

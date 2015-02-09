@@ -17,6 +17,7 @@
 
 #include "../sharedCode/histTools.h"
 #include "../sharedCode/ZMET.h"
+#include "../sharedCode/METTemplateSelections.h"
 
 using namespace std;
 
@@ -32,12 +33,15 @@ makePhotonTemplates::~makePhotonTemplates()
 
 void makePhotonTemplates::ScanChain ( TChain * chain , const string iter , const string sample ){
 
-  if( zmet.isData() )        cout << "Running on Data."        << endl;
-  else                       cout << "Running on MC.  "        << endl;
+  // if( zmet.isData() )        cout << "Running on Data."        << endl;
+  // else                       cout << "Running on MC.  "        << endl;
 
   int npass = 0;
-  bookHistos();
-  
+  METTemplates mettemplates;
+  mettemplates.setBins();
+  mettemplates.bookMETHists(mettemplate_hists);
+  // bookHistos();
+
   TObjArray *listOfFiles = chain->GetListOfFiles();
   unsigned int nEventsChain = 0;
   unsigned int nEvents = chain->GetEntries();
@@ -49,9 +53,9 @@ void makePhotonTemplates::ScanChain ( TChain * chain , const string iter , const
   // file loop
   TIter fileIter(listOfFiles);
   TFile* currentFile = 0;
-  while ((currentFile = dynamic_cast<TFile*>(fileIter.Next()))){
+  while ( (currentFile = (TFile*) fileIter.Next()) ){
 
-    TFile f(currentFile->GetTitle());
+	TFile f(currentFile->GetTitle());
     TTree *tree = dynamic_cast<TTree*>(f.Get("mt2"));
     zmet.Init(tree);
 
@@ -81,7 +85,14 @@ void makePhotonTemplates::ScanChain ( TChain * chain , const string iter , const
 	  //~-~-~-~-~-~-~-~-//
       // event selection// 
 	  //~-~-~-~-~-~-~-~-//
-      // if( templates.njets() < 2 )                                           continue; // >=2 jets
+
+	  if( zmet.ngamma() < 1 ) continue;
+	  if( zmet.njets() < 2 ) continue;
+	  if( zmet.gamma_pt().at(0) < 22 ) continue;
+	  
+	  mettemplates.FillTemplate(mettemplate_hists, zmet.njets(), zmet.ht(), zmet.gamma_pt().at(0), zmet.met_pt() );
+
+	  // if( templates.njets() < 2 )                                           continue; // >=2 jets
 	  // if( templates.njets() > 3 && !doinclusive )                           continue;//jet selection 
       // if( templates.etg() <  20 )                                           continue; // photon pt  > 20 GeV
       // if( fabs( templates.etag() ) > 2 )                                    continue; // photon eta < 2
@@ -141,6 +152,9 @@ void makePhotonTemplates::ScanChain ( TChain * chain , const string iter , const
 
 
   cout << npass << " events passing selection" << endl;
+
+  mettemplates.NormalizeTemplates(mettemplate_hists);
+
   if (nEventsChain != nEventsTotal)
     std::cout << "ERROR: number of events from files is not equal to total number of events" << std::endl;
   

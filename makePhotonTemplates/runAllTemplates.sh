@@ -23,8 +23,11 @@ fi
 # make_gtemplates $selection &
 
 # SR + CRS
-selection="_2btag_mjjlo_mt2jhi_inclusive_medium"
-make_gtemplates $selection &
+selection="_inclusive"
+make_gtemplates $selection
+
+# selection="_2btag_mjjlo_mt2jhi_inclusive_medium"
+# make_gtemplates $selection &
 # selection="_2btag_mjjhi_mt2jhi_inclusive_medium"
 # make_gtemplates $selection &
 # selection="_2btag_mjjlo_mt2jlo_inclusive_medium"
