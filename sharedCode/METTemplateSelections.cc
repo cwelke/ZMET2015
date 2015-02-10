@@ -2,7 +2,12 @@
 #include <iostream>
 #include <map>
 
+#include "TH1.h"
 #include "TH1F.h"
+#include "TFile.h"
+#include "TCollection.h"
+#include "TDirectory.h"
+#include "TKey.h"
 
 #include "METTemplateSelections.h"
 #include "histTools.h"
@@ -10,6 +15,13 @@
 using namespace std;
 
 METTemplates::METTemplates()
+{
+  photon_ptcuts.clear();
+  photon_njetcuts.clear();
+  photon_htcuts.clear();
+}
+
+METTemplates::~METTemplates()
 {
   photon_ptcuts.clear();
   photon_njetcuts.clear();
@@ -89,7 +101,7 @@ int METTemplates::getNjetsBin( const int &njets )
 	}
   }
   std::cout<<"WARNING: Did not find good Njets Bin. " <<std::endl;
-  // std::cout<<"NJets: "<<njets<<std::endl;
+  std::cout<<"NJets: "<<njets<<std::endl;
   return -9999;
 }
 
@@ -109,6 +121,7 @@ int METTemplates::getHTBin( const float &HT )
 	}
   }
   std::cout<<"WARNING: Did not find good HT Bin. " <<std::endl;
+  std::cout<<"HT: "<<HT<<std::endl;
   return -9999;
 }
 
@@ -128,10 +141,11 @@ int METTemplates::getpTBin( const float &pT )
 	}
   }
   std::cout<<"WARNING: Did not find good pT Bin. " <<std::endl;
+  std::cout<<"pT: "<<pT<<std::endl;
   return -9999;
 }
 
-void METTemplates::FillTemplate( std::map<std::string, TH1F*> &methists, int njets, float ht, float pt, float met )
+void METTemplates::FillTemplate( std::map<std::string, TH1F*> &methists, int njets, float ht, float pt, float met, float weight )
 {
   std::string histname = Form("h_template_njetsind_%i_htind_%i_ptind_%i"
 							  , static_cast<int>(getNjetsBin(njets))
@@ -139,7 +153,7 @@ void METTemplates::FillTemplate( std::map<std::string, TH1F*> &methists, int nje
 							  , static_cast<int>(getpTBin(pt)) );
   try
 	{
-	  fillUnderOverFlow(methists.at(histname.c_str()), met, 1);//)->Fill( met );
+	  fillUnderOverFlow(methists.at(histname.c_str()), met, weight);
 	}
   catch ( exception &e )
 	{
@@ -155,4 +169,54 @@ void METTemplates::NormalizeTemplates( std::map<std::string, TH1F*> &methists )
 	  itr->second->Scale(1.0/itr->second->GetSumOfWeights());
 	}
   }
+}
+
+//How to use following functions:
+  // cout << "Retrieving templates " << endl;
+  // std::map<std::string, TH1F*> dummy;  
+  // mettemplates.loadTemplatesFromFile( outputfilename, dummy);
+
+  // double normalization = dummy.at("h_template_njetsind_1_htind_6_ptind_7")->GetEntries();
+  // cout << "Nentries 1 " << normalization << endl;
+
+
+  // cout << "Retrieving Hist for 3, 350, 175 " << endl;
+  // TH1F * mettemplate = mettemplates.pickTemplate( dummy, 3, 350, 175 );
+  // normalization = mettemplate->GetEntries();
+  // cout << "Nentries 2 " << normalization << endl;
+
+void METTemplates::loadTemplatesFromFile( const std::string filename, std::map<std::string, TH1F*> &methists )
+{
+  TFile *infile = new TFile(filename.c_str());
+  std::cout<<"Reading hists from file: "<<filename<<std::endl;
+  infile->cd();
+  TIter iKey(infile->GetListOfKeys());
+  TKey* key=0;
+  while((key=(TKey*)iKey())) {
+	TH1* hist=(TH1*)key->ReadObjectAny(TH1::Class());
+	std::string histname = hist->GetName();
+	std::cout<<"Name:  "<<TString(hist->GetName())<<std::endl;
+	methists.insert ( pair<std::string,TH1F*>(histname, (TH1F*)hist));	
+	// std::string histtitle = TString(hist->GetTitle())
+	// std::cout<<"Title: "<<TString(hist->GetTitle())<<std::endl;
+  }
+  return;
+}
+
+TH1F* METTemplates::pickTemplate( std::map<std::string, TH1F*> &methists, int njets, float ht, float pt )
+{
+  std::string histname = Form("h_template_njetsind_%i_htind_%i_ptind_%i"
+							  , static_cast<int>(getNjetsBin(njets))
+							  , static_cast<int>(getHTBin(ht))
+							  , static_cast<int>(getpTBin(pt)) );
+  try
+	{
+	  return methists.at(histname.c_str());
+	}
+  catch ( exception &e )
+	{
+	  std::cout<<Form("Cannot find hist: %s", histname.c_str() )<<std::endl<<"Exiting."<<std::endl;
+	  exit(1);
+	}  
+  return NULL;
 }

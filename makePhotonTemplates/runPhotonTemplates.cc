@@ -26,11 +26,12 @@ void runPhotonTemplates( std::string selection = "" ){
 
   if ( sample == "All_MC" ){
 	// ch->Add("/nfs-7/userdata/cwelke/ZMETbabies/V00-00-01/gjet_pt40_doubleEM.root");
-	ch->Add("/nfs-7/userdata/cwelke/ZMETbabies/V00-00-01/gjet_ht100to200.root"   );
-	ch->Add("/nfs-7/userdata/cwelke/ZMETbabies/V00-00-01/gjet_ht200to400.root"   );
-	ch->Add("/nfs-7/userdata/cwelke/ZMETbabies/V00-00-01/gjet_ht200to400_1.root" );
-	ch->Add("/nfs-7/userdata/cwelke/ZMETbabies/V00-00-01/gjet_ht400to600.root"   );
-	ch->Add("/nfs-7/userdata/cwelke/ZMETbabies/V00-00-01/gjet_ht400to600_1.root" );
+
+	// ch->Add("/nfs-7/userdata/cwelke/ZMETbabies/V00-00-01/gjet_ht100to200.root"   );
+	// ch->Add("/nfs-7/userdata/cwelke/ZMETbabies/V00-00-01/gjet_ht200to400.root"   );
+	// ch->Add("/nfs-7/userdata/cwelke/ZMETbabies/V00-00-01/gjet_ht200to400_1.root" );
+	// ch->Add("/nfs-7/userdata/cwelke/ZMETbabies/V00-00-01/gjet_ht400to600.root"   );
+	// ch->Add("/nfs-7/userdata/cwelke/ZMETbabies/V00-00-01/gjet_ht400to600_1.root" );
 	ch->Add("/nfs-7/userdata/cwelke/ZMETbabies/V00-00-01/gjet_ht600toinf.root"   );
 	ch->Add("/nfs-7/userdata/cwelke/ZMETbabies/V00-00-01/gjet_ht600toinf_1.root" );
 

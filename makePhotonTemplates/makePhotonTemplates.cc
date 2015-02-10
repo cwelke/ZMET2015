@@ -89,8 +89,6 @@ void makePhotonTemplates::ScanChain ( TChain * chain , const string iter , const
 	  if( zmet.ngamma() < 1 ) continue;
 	  if( zmet.njets() < 2 ) continue;
 	  if( zmet.gamma_pt().at(0) < 22 ) continue;
-	  
-	  mettemplates.FillTemplate(mettemplate_hists, zmet.njets(), zmet.ht(), zmet.gamma_pt().at(0), zmet.met_pt() );
 
 	  // if( templates.njets() < 2 )                                           continue; // >=2 jets
 	  // if( templates.njets() > 3 && !doinclusive )                           continue;//jet selection 
@@ -133,11 +131,17 @@ void makePhotonTemplates::ScanChain ( TChain * chain , const string iter , const
 	  //-~-~-~-~-~-~-~-~-~-~-~-//
 	  //Deal with event weights//
 	  //-~-~-~-~-~-~-~-~-~-~-~-//
-
+	  float weight = 1.0;
+	  if( zmet.isData() ){
+		weight = 1.0;
+	  }else if( !zmet.isData() ){
+		weight *= zmet.evt_scale1fb();
+	  }
+	  
 	  //-~-~-~-~-~-~-~-~-~-//
 	  //Fill Template hists//
-	  //-~-~-~-~-~-~-~-~-~-//
-	  // fillUnderOverFlow( hphotonPt20 , templates.etg() , templates.weight() );
+	  //-~-~-~-~-~-~-~-~-~-//	  
+	  mettemplates.FillTemplate(mettemplate_hists, zmet.njets(), zmet.ht(), zmet.gamma_pt().at(0), zmet.met_pt(), weight );
 
 	  
 		
@@ -176,7 +180,7 @@ void makePhotonTemplates::ScanChain ( TChain * chain , const string iter , const
 
   cout << "Writing templates to " << outputfilename << endl;
   saveHist(outputfilename.c_str(),"*");
-
+  
   // deleteHistos();
   
 } // end ScanChain
